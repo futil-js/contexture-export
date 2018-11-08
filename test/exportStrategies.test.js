@@ -54,11 +54,27 @@ describe('exportStrategies', () => {
           firstProperty: 'first',
           secondProperty: 'second',
         },
+        {
+          firstProperty: 'first',
+          secondProperty: 'second',
+        },
       ]
       let strategy = getSimpleStrategy(getNext)
       let stream = {
         write: jest.fn(),
         end: jest.fn(),
+      }
+      let independentTotalCount = 0
+      let beforeWrite = async ({ chunk, totalRecords }) => {
+        independentTotalCount += chunk.length
+        if (independentTotalCount === 4) {
+          chunk = chunk.slice(0, -1)
+          totalRecords -= 1
+        }
+        return {
+          chunk,
+          totalRecords,
+        }
       }
       let onWrite = jest.fn()
       let logger = jest.fn()
@@ -74,6 +90,7 @@ describe('exportStrategies', () => {
       await exportStrategies.CSVStream({
         strategy,
         stream,
+        beforeWrite,
         onWrite,
         formatRules,
         logger,
@@ -81,6 +98,7 @@ describe('exportStrategies', () => {
       expect(stream.write.mock.calls).toEqual([
         [
           `First Prop,Second Property
+FIRST,SECOND
 FIRST,SECOND
 `,
         ],
@@ -100,8 +118,12 @@ FIRST,SECOND
                 'First Prop': 'FIRST',
                 'Second Property': 'SECOND',
               },
+              {
+                'First Prop': 'FIRST',
+                'Second Property': 'SECOND',
+              },
             ],
-            records: 1,
+            records: 2,
             totalRecords: 4,
           },
         ],
@@ -113,8 +135,8 @@ FIRST,SECOND
                 'Second Property': 'SECOND',
               },
             ],
-            records: 2,
-            totalRecords: 4,
+            records: 3,
+            totalRecords: 3,
           },
         ],
       ])
@@ -122,8 +144,8 @@ FIRST,SECOND
       // Contexture is responsible for making sure the query is consistent with
       // the database results.
       expect(logger.mock.calls).toEqual([
-        ['CSVStream', '1 of 4'],
         ['CSVStream', '2 of 4'],
+        ['CSVStream', '3 of 3'],
       ])
       expect(stream.end).toHaveBeenCalled()
     })

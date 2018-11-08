@@ -51,14 +51,13 @@ const format = (
   defaultLabel = _.startCase,
   defaultDisplay = _.identity
 ) => {
-  let propertyFormatter = _.map(
-    ([k, v]) =>
-      rules[k]
-        ? [
-            rules[k].label || defaultLabel(k),
-            (rules[k].display || defaultDisplay)(v),
-          ]
-        : [defaultLabel(k), defaultDisplay(v)]
+  let propertyFormatter = _.map(([k, v]) =>
+    rules[k]
+      ? [
+          rules[k].label || defaultLabel(k),
+          (rules[k].display || defaultDisplay)(v),
+        ]
+      : [defaultLabel(k), defaultDisplay(v)]
   )
   return _.map(
     _.flow(
@@ -75,6 +74,7 @@ const format = (
 export const CSVStream = async ({
   strategy,
   stream: targetStream,
+  beforeWrite = _.identity,
   onWrite,
   formatRules = {},
   logger = console.info,
@@ -89,6 +89,10 @@ export const CSVStream = async ({
 
   let streamWrapper = {
     async write(chunk) {
+      let changed = await beforeWrite({ chunk, totalRecords })
+      chunk = changed.chunk
+      totalRecords = changed.totalRecords
+
       logger('CSVStream', `${records + chunk.length} of ${totalRecords}`)
 
       chunk = format(formatRules)(chunk)
