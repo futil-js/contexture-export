@@ -1,4 +1,7 @@
-﻿# 0.1.9
+﻿# 0.2.0
+* implement `results`-style `include` in terms_stats strategy
+
+# 0.1.9
 * Fix missing columns issue due to not all columns having results in the first row
 
 # 0.1.8
