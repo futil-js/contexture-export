@@ -84,6 +84,7 @@ export const terms_stats = ({
   value_field,
   size = 100,
   sortDir,
+  include
 }) => {
   let formatTree = analysisNode => ({
     ..._.pick(['schema', 'join'], tree),
@@ -121,7 +122,14 @@ export const terms_stats = ({
       )
     )
     done = true
-    return result.context.terms
+
+    let terms = _.get('context.terms', result)
+    if (include) {
+      let omittedFields = _.difference(['count', 'doc_count', 'min', 'max', 'avg', 'sum'], include)
+      terms = _.map(_.omit(omittedFields), terms)
+    }
+
+    return terms
   }
 
   return {

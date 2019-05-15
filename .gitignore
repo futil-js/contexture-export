@@ -61,3 +61,6 @@ package-lock.json
 
 # ignore lib directory
 lib/
+
+# OS X
+.DS_Store
