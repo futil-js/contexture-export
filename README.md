@@ -1,4 +1,6 @@
-﻿# contexture-export
+> :warning: **Development has moved to the [contexture monorepo](https://github.com/smartprocure/contexture)**: This package lives in https://github.com/smartprocure/contexture/tree/master/packages/export
+
+# contexture-export
 
 Contexture Export is a set of [contexture](https://github.com/smartprocure/contexture) utilities to get all of the records from a given tree.
 
